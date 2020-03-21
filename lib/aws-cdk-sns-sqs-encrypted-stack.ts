@@ -30,5 +30,7 @@ export class AwsCdkSnsSqsEncryptedStack extends Stack {
     );
     topic.addSubscription(new SqsSubscription(sqs));
 
+    key.grant(new ServicePrincipal('sns.amazonaws.com'));
+    key.grant(new ServicePrincipal('sqs.amazonaws.com'));
   }
 }
