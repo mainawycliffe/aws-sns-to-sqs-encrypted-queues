@@ -9,11 +9,7 @@ import {
 } from '@aws-cdk/aws-iam';
 
 export class KMSKey extends Key {
-  public kmsKey: IKey;
-
   constructor(scope: Construct, id: string) {
-    super(scope, id);
-
     // create a CMK KMS Key for Our Key
     const cmkKeyProps: KeyProps = {
       description:
@@ -30,15 +26,14 @@ export class KMSKey extends Key {
         ]
       })
     };
-    const cmk = new Key(this, 'SNS_SQS_CMK', cmkKeyProps);
+
+    super(scope, id, cmkKeyProps);
 
     // OPTIONAL: Export the ARN for use by other stacks
-    new CfnOutput(this, 'SNS_SQS_CMK_ARN', {
-      value: cmk.keyArn,
+    new CfnOutput(this, 'newUserCreatedKMSKeyArn', {
+      value: this.keyArn,
       description: 'SNS and SQS SSE KMS Custom Master Key Arn',
-      exportName: 'SNS_SQS_CMK_ARN'
+      exportName: 'newUserCreatedKMSKeyArn'
     });
-
-    this.kmsKey = cmk;
   }
 }

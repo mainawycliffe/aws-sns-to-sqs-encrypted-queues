@@ -1,25 +1,24 @@
 import { Construct, CfnOutput } from '@aws-cdk/core';
 
 import { Topic, TopicProps } from '@aws-cdk/aws-sns';
+import { Key } from '@aws-cdk/aws-kms';
+import { ArnPrincipal } from '@aws-cdk/aws-iam';
 
 export class SNSTopic extends Topic {
-  public topic: Topic;
-
-  constructor(scope: Construct, id: string) {
-    super(scope, id);
-
+  constructor(scope: Construct, id: string, kmsMasterKey: Key) {
     const topicProps: TopicProps = {
-      displayName: 'SNSTopic'
+      displayName: 'newUserCreatedSNSTopic',
+      masterKey: kmsMasterKey,
+      topicName: 'newUserCreatedSNSTopic'
     };
 
-    // create a CMK Key to be used by SNS
-    this.topic = new Topic(this, 'SomeTopicName', topicProps);
+    super(scope, id, topicProps);
 
     // OPTIONAL: Export the ARN for use by other stacks
-    new CfnOutput(this, 'SNS_SQS_CMK_ARN', {
-      value: this.topic.topicArn,
-      description: 'SNS and SQS SSE KMS Custom Master Key Arn',
-      exportName: 'SNS_SQS_CMK_ARN'
+    new CfnOutput(this, 'newUserCreatedSNSTopicArm', {
+      value: this.topicArn,
+      description: 'New User Created SNS Topic Arn',
+      exportName: 'newUserCreatedSNSTopicArm'
     });
   }
 }
