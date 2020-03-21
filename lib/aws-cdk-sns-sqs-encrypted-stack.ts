@@ -28,8 +28,7 @@ export class AwsCdkSnsSqsEncryptedStack extends Stack {
       key,
       topic
     );
-    // create a CMK Key to be used by SNS
-    const key = new KMSKey(this, 'createCMKKey');
-    const topic = new SNSTopic(this, 'mySNSTopic');
+    topic.addSubscription(new SqsSubscription(sqs));
+
   }
 }
