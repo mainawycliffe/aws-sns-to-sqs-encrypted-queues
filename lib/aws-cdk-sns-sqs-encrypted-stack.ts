@@ -1,10 +1,10 @@
-import { Stack, StackProps, Construct, CfnOutput } from '@aws-cdk/core';
+import { Stack, StackProps, Construct, Aws } from '@aws-cdk/core';
 
 import { KMSKey } from './kms';
 import { SNSTopic } from './topic';
 import { SendWelcomeEmailQueue } from './sqs';
 import { SqsSubscription } from '@aws-cdk/aws-sns-subscriptions';
-import { ServicePrincipal } from '@aws-cdk/aws-iam';
+import { ServicePrincipal, AnyPrincipal, ArnPrincipal } from '@aws-cdk/aws-iam';
 
 export class AwsCdkSnsSqsEncryptedStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -30,7 +30,23 @@ export class AwsCdkSnsSqsEncryptedStack extends Stack {
     );
     topic.addSubscription(new SqsSubscription(sqs));
 
-    key.grant(new ServicePrincipal('sns.amazonaws.com'));
-    key.grant(new ServicePrincipal('sqs.amazonaws.com'));
+    key.grantEncryptDecrypt(
+      new ServicePrincipal('sns.amazonaws.com', {
+        // conditions: {
+        //   ArnEquals: {
+        //     'aws:SourceArn': `arn:aws:sns:${Aws.REGION}:${Aws.ACCOUNT_ID}:newUserCreatedSNSTopic`
+        //   }
+        // }
+      })
+    );
+    key.grantDecrypt(
+      new ServicePrincipal('sqs.amazonaws.com', {
+        conditions: {
+          ArnEquals: {
+            'aws:SourceArn': `arn:aws:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:sendWelcomeEmail`
+          }
+        }
+      })
+    );
   }
 }

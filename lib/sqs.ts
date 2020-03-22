@@ -2,7 +2,12 @@ import { CfnOutput, Construct, Duration } from '@aws-cdk/core';
 
 import { Key } from '@aws-cdk/aws-kms';
 import { Queue, QueueProps, QueuePolicy } from '@aws-cdk/aws-sqs';
-import { PolicyStatement, Effect, AnyPrincipal } from '@aws-cdk/aws-iam';
+import {
+  PolicyStatement,
+  Effect,
+  AnyPrincipal,
+  ServicePrincipal
+} from '@aws-cdk/aws-iam';
 import { Topic } from '@aws-cdk/aws-sns';
 
 export class SendWelcomeEmailQueue extends Queue {
@@ -39,13 +44,12 @@ export class SendWelcomeEmailQueue extends Queue {
     };
     super(scope, id, queueProps);
 
-    const policy = new QueuePolicy(
-      this,
-      'updateUserDetailsOnFreshdeskQueuePolicy',
-      {
-        queues: [this]
-      }
-    );
+    // to avoid the cyclic resource dependencies, use a separate policy to give
+    // permission for SNS Topic permission to this queue.
+    const policy = new QueuePolicy(this, 'sendWelcomeEmailQueuePolicy', {
+      queues: [this]
+    });
+
     policy.document.addStatements(
       new PolicyStatement({
         principals: [new AnyPrincipal()],

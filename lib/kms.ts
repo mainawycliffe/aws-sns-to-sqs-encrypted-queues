@@ -1,6 +1,6 @@
-import { Construct, CfnOutput } from '@aws-cdk/core';
+import { Construct, CfnOutput, RemovalPolicy } from '@aws-cdk/core';
 
-import { Key, KeyProps, IKey } from '@aws-cdk/aws-kms';
+import { Key, KeyProps } from '@aws-cdk/aws-kms';
 import {
   PolicyDocument,
   PolicyStatement,
@@ -14,6 +14,8 @@ export class KMSKey extends Key {
     const cmkKeyProps: KeyProps = {
       description:
         'Custom Master Key for Server-Side Encryption for SNS and SQS',
+      alias: 'alias/newUserCreated',
+      removalPolicy: RemovalPolicy.DESTROY,
       policy: new PolicyDocument({
         assignSids: true,
         statements: [
