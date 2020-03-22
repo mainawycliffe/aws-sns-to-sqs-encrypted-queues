@@ -4,7 +4,7 @@ import { Topic, TopicProps } from '@aws-cdk/aws-sns';
 import { Key } from '@aws-cdk/aws-kms';
 import { ServicePrincipal } from '@aws-cdk/aws-iam';
 
-export class SNSTopic extends Topic {
+export class NewUserCreatedTopic extends Topic {
   constructor(scope: Construct, id: string, kmsMasterKey: Key) {
     const topicProps: TopicProps = {
       displayName: 'newUserCreatedSNSTopic',

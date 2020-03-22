@@ -1,7 +1,7 @@
 import { Stack, StackProps, Construct, Aws } from '@aws-cdk/core';
 
 import { KMSKey } from './customMasterKey';
-import { SNSTopic } from './newUserCreatedSNSTopic';
+import { NewUserCreatedTopic } from './newUserCreatedSNSTopic';
 import { SendWelcomeEmailQueue } from './sendWelcomeEmailQueue';
 import { SqsSubscription } from '@aws-cdk/aws-sns-subscriptions';
 
@@ -17,7 +17,7 @@ export class AwsCdkSnsSqsEncryptedStack extends Stack {
     // an sqs topic an be subscribed to by multiple subscribers
     // in our case, when a new user is created, we publish a message and one
     // queue just send welcomes email.
-    const topic = new SNSTopic(this, 'newUserCreatedSNSTopic', key);
+    const topic = new NewUserCreatedTopic(this, 'newUserCreatedSNSTopic', key);
 
     // create an sqs queue and a dead letter for it. if messages aren't
     // delivered in five retries, then they are sent to our dead letter queue.
