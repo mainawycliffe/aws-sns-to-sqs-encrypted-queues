@@ -21,7 +21,7 @@ export class sendWelcomeEmailFunction extends Function {
     const functionProps: FunctionProps = {
       runtime: Runtime.NODEJS_12_X,
       handler: 'sendWelcomeEmail.sendWelcomeEmail',
-      code: Code.fromAsset('dist/src')
+      code: Code.fromAsset('src')
     };
     super(scope, id, functionProps);
 
