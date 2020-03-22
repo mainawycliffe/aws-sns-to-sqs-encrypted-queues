@@ -2,7 +2,7 @@ import { Construct, CfnOutput } from '@aws-cdk/core';
 
 import { Topic, TopicProps } from '@aws-cdk/aws-sns';
 import { Key } from '@aws-cdk/aws-kms';
-import { ArnPrincipal } from '@aws-cdk/aws-iam';
+import { ServicePrincipal } from '@aws-cdk/aws-iam';
 
 export class SNSTopic extends Topic {
   constructor(scope: Construct, id: string, kmsMasterKey: Key) {
@@ -13,6 +13,16 @@ export class SNSTopic extends Topic {
     };
 
     super(scope, id, topicProps);
+
+    kmsMasterKey.grantEncryptDecrypt(
+      new ServicePrincipal('sns.amazonaws.com', {
+        // conditions: {
+        //   ArnEquals: {
+        //     'aws:SourceArn': `arn:aws:sns:${Aws.REGION}:${Aws.ACCOUNT_ID}:newUserCreatedSNSTopic`
+        //   }
+        // }
+      })
+    );
 
     // OPTIONAL: Export the ARN for use by other stacks
     new CfnOutput(this, 'newUserCreatedSNSTopicArm', {

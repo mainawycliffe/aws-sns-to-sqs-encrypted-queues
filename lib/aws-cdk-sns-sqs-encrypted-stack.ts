@@ -29,24 +29,5 @@ export class AwsCdkSnsSqsEncryptedStack extends Stack {
       topic
     );
     topic.addSubscription(new SqsSubscription(sqs));
-
-    key.grantEncryptDecrypt(
-      new ServicePrincipal('sns.amazonaws.com', {
-        // conditions: {
-        //   ArnEquals: {
-        //     'aws:SourceArn': `arn:aws:sns:${Aws.REGION}:${Aws.ACCOUNT_ID}:newUserCreatedSNSTopic`
-        //   }
-        // }
-      })
-    );
-    key.grantDecrypt(
-      new ServicePrincipal('sqs.amazonaws.com', {
-        conditions: {
-          ArnEquals: {
-            'aws:SourceArn': `arn:aws:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:sendWelcomeEmail`
-          }
-        }
-      })
-    );
   }
 }

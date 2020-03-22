@@ -1,4 +1,4 @@
-import { CfnOutput, Construct, Duration } from '@aws-cdk/core';
+import { CfnOutput, Construct, Duration, Aws } from '@aws-cdk/core';
 
 import { Key } from '@aws-cdk/aws-kms';
 import { Queue, QueueProps, QueuePolicy } from '@aws-cdk/aws-sqs';
@@ -58,6 +58,16 @@ export class SendWelcomeEmailQueue extends Queue {
         conditions: {
           ArnEquals: {
             'aws:SourceArn': snsTopic.topicArn
+          }
+        }
+      })
+    );
+
+    kmsMasterKey.grantDecrypt(
+      new ServicePrincipal('sqs.amazonaws.com', {
+        conditions: {
+          ArnEquals: {
+            'aws:SourceArn': `arn:aws:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:sendWelcomeEmail`
           }
         }
       })
