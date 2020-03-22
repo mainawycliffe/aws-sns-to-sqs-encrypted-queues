@@ -9,6 +9,7 @@ import {
   SubscriptionProps,
   SubscriptionProtocol
 } from '@aws-cdk/aws-sns';
+import { sendWelcomeEmailFunction } from './sendWelcomeEmailLambda';
 
 export class AwsCdkSnsSqsEncryptedStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -26,19 +27,24 @@ export class AwsCdkSnsSqsEncryptedStack extends Stack {
 
     // create an sqs queue and a dead letter for it. if messages aren't
     // delivered in five retries, then they are sent to our dead letter queue.
-    const sqs = new SendWelcomeEmailQueue(this, 'sendWelcomeEmailQueues', {
+    const queue = new SendWelcomeEmailQueue(this, 'sendWelcomeEmailQueues', {
       key: key,
       topic: topic
     });
     const subscriptionProps: SubscriptionProps = {
       topic: topic,
       protocol: SubscriptionProtocol.SQS,
-      endpoint: sqs.queueArn
+      endpoint: queue.queueArn
     };
     new Subscription(
-      sqs,
+      queue,
       'sendWelcomeEmailQueueSubscription',
       subscriptionProps
     );
+
+    new sendWelcomeEmailFunction(this, 'SendWelcomeEmailFunction', {
+      key: key,
+      queue: queue
+    });
   }
 }
