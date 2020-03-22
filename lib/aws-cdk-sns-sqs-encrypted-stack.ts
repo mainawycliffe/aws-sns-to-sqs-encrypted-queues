@@ -1,10 +1,9 @@
 import { Stack, StackProps, Construct, Aws } from '@aws-cdk/core';
 
-import { KMSKey } from './kms';
-import { SNSTopic } from './topic';
-import { SendWelcomeEmailQueue } from './sqs';
+import { KMSKey } from './customMasterKey';
+import { SNSTopic } from './newUserCreatedSNSTopic';
+import { SendWelcomeEmailQueue } from './sendWelcomeEmailQueue';
 import { SqsSubscription } from '@aws-cdk/aws-sns-subscriptions';
-import { ServicePrincipal, AnyPrincipal, ArnPrincipal } from '@aws-cdk/aws-iam';
 
 export class AwsCdkSnsSqsEncryptedStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
