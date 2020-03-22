@@ -4,6 +4,11 @@ import { KMSKey } from './customMasterKey';
 import { NewUserCreatedTopic } from './newUserCreatedSNSTopic';
 import { SendWelcomeEmailQueue } from './sendWelcomeEmailQueue';
 import { SqsSubscription } from '@aws-cdk/aws-sns-subscriptions';
+import {
+  Subscription,
+  SubscriptionProps,
+  SubscriptionProtocol
+} from '@aws-cdk/aws-sns';
 
 export class AwsCdkSnsSqsEncryptedStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -25,6 +30,15 @@ export class AwsCdkSnsSqsEncryptedStack extends Stack {
       key: key,
       topic: topic
     });
-    topic.addSubscription(new SqsSubscription(sqs));
+    const subscriptionProps: SubscriptionProps = {
+      topic: topic,
+      protocol: SubscriptionProtocol.SQS,
+      endpoint: sqs.queueArn
+    };
+    new Subscription(
+      sqs,
+      'sendWelcomeEmailQueueSubscription',
+      subscriptionProps
+    );
   }
 }
