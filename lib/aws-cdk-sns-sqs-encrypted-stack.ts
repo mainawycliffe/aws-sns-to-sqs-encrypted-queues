@@ -21,12 +21,10 @@ export class AwsCdkSnsSqsEncryptedStack extends Stack {
 
     // create an sqs queue and a dead letter for it. if messages aren't
     // delivered in five retries, then they are sent to our dead letter queue.
-    const sqs = new SendWelcomeEmailQueue(
-      this,
-      'sendWelcomeEmailQueues',
-      key,
-      topic
-    );
+    const sqs = new SendWelcomeEmailQueue(this, 'sendWelcomeEmailQueues', {
+      key: key,
+      topic: topic
+    });
     topic.addSubscription(new SqsSubscription(sqs));
   }
 }

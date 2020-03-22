@@ -10,6 +10,13 @@ import {
 } from '@aws-cdk/aws-iam';
 import { Topic } from '@aws-cdk/aws-sns';
 
+export interface SendWelcomeWelcomeProps {
+  // KMS Customer Master Key for Server Side Encryption
+  key: Key;
+  // SNS Topic to Subscribe this Queue to
+  topic: Topic;
+}
+
 export class SendWelcomeEmailQueue extends Queue {
   // After 5 retries, messages will be sent to our dead letter queue
   public deadLetterQueue: Queue;
@@ -17,13 +24,12 @@ export class SendWelcomeEmailQueue extends Queue {
   constructor(
     scope: Construct,
     id: string,
-    kmsMasterKey: Key,
-    snsTopic: Topic
+    sendWelcomeProps: SendWelcomeWelcomeProps
   ) {
     // dead letter queue
     const queueDlQProps: QueueProps = {
       queueName: 'sendWelcomeEmailDeadLetterQueue',
-      encryptionMasterKey: kmsMasterKey,
+      encryptionMasterKey: sendWelcomeProps.key,
       retentionPeriod: Duration.days(14)
     };
     const deadLetterQueue = new Queue(
@@ -35,7 +41,7 @@ export class SendWelcomeEmailQueue extends Queue {
     // normal queue
     const queueProps: QueueProps = {
       queueName: 'sendWelcomeEmail',
-      encryptionMasterKey: kmsMasterKey,
+      encryptionMasterKey: sendWelcomeProps.key,
       retentionPeriod: Duration.days(14), // maximum numbers of days
       deadLetterQueue: {
         maxReceiveCount: 5, // send to the dead letter queue after 5 retries
@@ -57,13 +63,13 @@ export class SendWelcomeEmailQueue extends Queue {
         actions: ['SQS:SendMessage'],
         conditions: {
           ArnEquals: {
-            'aws:SourceArn': snsTopic.topicArn
+            'aws:SourceArn': sendWelcomeProps.topic.topicArn
           }
         }
       })
     );
 
-    kmsMasterKey.grantDecrypt(
+    sendWelcomeProps.key.grantDecrypt(
       new ServicePrincipal('sqs.amazonaws.com', {
         conditions: {
           ArnEquals: {
