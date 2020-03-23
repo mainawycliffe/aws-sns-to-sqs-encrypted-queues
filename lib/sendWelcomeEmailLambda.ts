@@ -25,8 +25,8 @@ export class sendWelcomeEmailFunction extends Function {
   ) {
     // Create a function for Sending emails triggered by SQS Queue
     const functionProps: FunctionProps = {
-      runtime: Runtime.NODEJS_12_X,
-      handler: 'sendWelcomeEmail.sendWelcomeEmail',
+      runtime: Runtime.GO_1_X,
+      handler: 'sendWelcomeEmail',
       code: Code.fromAsset('src'),
       initialPolicy: [
         // Allow the SendWelcomeEmail and SendWelcomeEmailDeadLetterQueue Queues
