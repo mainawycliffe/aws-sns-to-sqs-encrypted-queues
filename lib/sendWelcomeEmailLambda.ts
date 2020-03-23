@@ -1,8 +1,19 @@
 import { Construct, Aws, CfnOutput, RemovalPolicy } from '@aws-cdk/core';
 
-import { Function, FunctionProps, Code, Runtime } from '@aws-cdk/aws-lambda';
+import {
+  Function,
+  FunctionProps,
+  Code,
+  Runtime,
+  EventSourceMapping
+} from '@aws-cdk/aws-lambda';
 import { Queue } from '@aws-cdk/aws-sqs';
-import { ServicePrincipal, ArnPrincipal } from '@aws-cdk/aws-iam';
+import {
+  ServicePrincipal,
+  ArnPrincipal,
+  PolicyStatement,
+  Effect
+} from '@aws-cdk/aws-iam';
 import { Key } from '@aws-cdk/aws-kms';
 import { SqsEventSource } from '@aws-cdk/aws-lambda-event-sources';
 
@@ -21,31 +32,32 @@ export class sendWelcomeEmailFunction extends Function {
     const functionProps: FunctionProps = {
       runtime: Runtime.NODEJS_12_X,
       handler: 'sendWelcomeEmail.sendWelcomeEmail',
-      code: Code.fromAsset('src')
+      code: Code.fromAsset('src'),
+      initialPolicy: [
+        // Allow the SendWelcomeEmail and SendWelcomeEmailDeadLetterQueue Queues
+        // to invoke this function.
+        new PolicyStatement({
+          actions: [
+            'sqs:ReceiveMessage',
+            'sqs:DeleteMessage',
+            'sqs:GetQueueAttributes',
+            'sqs:ChangeMessageVisibility'
+          ],
+          effect: Effect.ALLOW,
+          resources: [
+            `arn:aws:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:sendWelcomeEmail`,
+            `arn:aws:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:sendWelcomeEmailDeadLetterQueue`
+          ]
+        }),
+        // Allow this function to decrypt SSE SQS Messages
+        new PolicyStatement({
+          actions: ['kms:Decrypt'],
+          effect: Effect.ALLOW,
+          resources: [sendWelcomeEmailFunctionProps.key.keyArn]
+        })
+      ]
     };
     super(scope, id, functionProps);
-
-    // Allow this lambda to decrypt messages on SQS Queue
-    sendWelcomeEmailFunctionProps.key.grantDecrypt(
-      new ServicePrincipal('lambda.amazonaws.com', {
-        conditions: {
-          ArnEquals: {
-            'aws:SourceArn': `arn:aws:lambda:${Aws.REGION}:${Aws.ACCOUNT_ID}:${id}`
-          }
-        }
-      })
-    );
-
-    // Allow SQS to Invoke this Lambda Function
-    this.grantInvoke(
-      new ServicePrincipal('sqs.amazonaws.com', {
-        conditions: {
-          ArnEquals: {
-            'aws:SourceArn': `arn:aws:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:sendWelcomeEmail`
-          }
-        }
-      })
-    );
 
     // Trigger this lambda each time a queue is published
     this.addEventSource(
@@ -53,6 +65,15 @@ export class sendWelcomeEmailFunction extends Function {
         batchSize: 1
       })
     );
+
+    // Add a disabled EventSourceMapping for the Dead Letter Queue. It allows
+    // for the messages in the Dead Letter Queue to be processed by simply
+    // enabling it.
+    new EventSourceMapping(this, 'SendWelcomeEmailDLQMapping', {
+      eventSourceArn: `arn:aws:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:sendWelcomeEmailDeadLetterQueue`,
+      target: this,
+      enabled: false
+    });
 
     new CfnOutput(this, 'sendWelcomeEmailFunctionArn', {
       value: this.functionArn,
