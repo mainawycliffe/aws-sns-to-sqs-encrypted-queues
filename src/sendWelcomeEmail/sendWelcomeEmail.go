@@ -7,13 +7,8 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/mainawycliffe/aws-sns-to-sqs-encrypted-queue/src/users"
 )
-
-type User struct {
-	Email    string `json:"email"`
-	FullName string `json:"name"`
-	Phone    string `json:"phone"`
-}
 
 func sendWelcomeEmailHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	for _, message := range sqsEvent.Records {
