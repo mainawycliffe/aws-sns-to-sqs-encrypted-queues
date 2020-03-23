@@ -17,12 +17,12 @@ func sendWelcomeEmailHandler(ctx context.Context, sqsEvent events.SQSEvent) erro
 		snsMessage := events.SNSEntity{}
 		err := json.Unmarshal([]byte(message.Body), &snsMessage)
 		if err != nil {
-			panic(err)
+			return nil
 		}
-		publishedMessage := User{}
+		publishedMessage := users.User{}
 		err = json.Unmarshal([]byte(snsMessage.Message), &publishedMessage)
 		if err != nil {
-			panic(err)
+			return nil
 		}
 		// send welcome email here
 		fmt.Printf("Welcome email sent to: \t %s<%s> \n", publishedMessage.FullName, publishedMessage.Email)
