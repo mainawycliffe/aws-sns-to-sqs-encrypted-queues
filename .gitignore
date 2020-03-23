@@ -1,3 +1,7 @@
+*
+!*/
+!*.*
+
 *.js
 !jest.config.js
 *.d.ts
@@ -7,4 +11,4 @@ node_modules
 .cdk.staging
 cdk.out
 
-sendWelcomeEmail
+!makefile
