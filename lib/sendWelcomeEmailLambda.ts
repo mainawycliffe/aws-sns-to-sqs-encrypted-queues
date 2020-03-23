@@ -8,12 +8,7 @@ import {
   EventSourceMapping
 } from '@aws-cdk/aws-lambda';
 import { Queue } from '@aws-cdk/aws-sqs';
-import {
-  ServicePrincipal,
-  ArnPrincipal,
-  PolicyStatement,
-  Effect
-} from '@aws-cdk/aws-iam';
+import { PolicyStatement, Effect } from '@aws-cdk/aws-iam';
 import { Key } from '@aws-cdk/aws-kms';
 import { SqsEventSource } from '@aws-cdk/aws-lambda-event-sources';
 

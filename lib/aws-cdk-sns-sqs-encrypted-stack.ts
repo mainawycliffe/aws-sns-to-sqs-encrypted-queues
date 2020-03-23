@@ -1,9 +1,8 @@
-import { Stack, StackProps, Construct, Aws } from '@aws-cdk/core';
+import { Stack, StackProps, Construct } from '@aws-cdk/core';
 
 import { KMSKey } from './customMasterKey';
 import { NewUserCreatedTopic } from './newUserCreatedSNSTopic';
 import { SendWelcomeEmailQueue } from './sendWelcomeEmailQueue';
-import { SqsSubscription } from '@aws-cdk/aws-sns-subscriptions';
 import {
   Subscription,
   SubscriptionProps,
