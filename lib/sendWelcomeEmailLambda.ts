@@ -27,7 +27,7 @@ export class sendWelcomeEmailFunction extends Function {
     const functionProps: FunctionProps = {
       runtime: Runtime.GO_1_X,
       handler: 'sendWelcomeEmail',
-      code: Code.fromAsset('src/sendWelcomeEmail'),
+      code: Code.fromAsset('goOut'),
       initialPolicy: [
         // Allow the SendWelcomeEmail and SendWelcomeEmailDeadLetterQueue Queues
         // to invoke this function.
