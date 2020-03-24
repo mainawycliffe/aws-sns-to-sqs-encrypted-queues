@@ -9,6 +9,7 @@ import {
   SubscriptionProtocol
 } from '@aws-cdk/aws-sns';
 import { sendWelcomeEmailFunction } from './sendWelcomeEmailLambda';
+import { newUserFunction } from './newUserLambda';
 
 export class AwsCdkSnsSqsEncryptedStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -44,6 +45,11 @@ export class AwsCdkSnsSqsEncryptedStack extends Stack {
     new sendWelcomeEmailFunction(this, 'SendWelcomeEmailFunction', {
       key: key,
       queue: queue
+    });
+
+    new newUserFunction(this, 'newUserPublisherFunction', {
+      topic: topic,
+      key: key
     });
   }
 }
